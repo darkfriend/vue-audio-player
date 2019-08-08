@@ -40,13 +40,8 @@
       return {
         innerLoop: false,
         audio: undefined,
-        currentSeconds: 0,
-        durationSeconds: 0,
         loaded: false,
         playing: false,
-        previousVolume: 35,
-        showVolume: false,
-        volume: 100
       };
     },
     created() {
@@ -64,22 +59,9 @@
         this.playing = true;
       });
       this.audio.addEventListener('ended', () => {
-        this.playing = false;
+        if(!this.innerLoop)
+            this.playing = false;
       });
-    },
-    computed: {
-      currentTime() {
-        return this.convertTimeHHMMSS(this.currentSeconds);
-      },
-      durationTime() {
-        return this.convertTimeHHMMSS(this.durationSeconds);
-      },
-      percentComplete() {
-        return parseInt(this.currentSeconds / this.durationSeconds * 100);
-      },
-      muted() {
-        return this.volume / 100 === 0;
-      }
     },
     watch: {
       playing(value) {
@@ -94,16 +76,8 @@
         }
         this.audio.pause();
       },
-      volume(value) {
-        this.showVolume = false;
-        this.audio.volume = this.volume / 100;
-      }
     },
     methods: {
-      convertTimeHHMMSS(val) {
-        let hhmmss = new Date(val * 1000).toISOString().substr(11, 8);
-        return hhmmss.indexOf("00:") === 0 ? hhmmss.substr(3) : hhmmss;
-      },
       load() {
         if (this.audio.readyState >= 2) {
           this.loaded = true;
@@ -111,19 +85,6 @@
           return this.playing = this.autoPlay;
         }
         throw new Error('Failed to load sound file.');
-      },
-      mute() {
-        if (this.muted) {
-          return this.volume = this.previousVolume;
-        }
-        this.previousVolume = this.volume;
-        this.volume = 0;
-      },
-      seek(e) {
-        if (!this.playing || e.target.tagName === 'SPAN') return;
-        const el = e.target.getBoundingClientRect();
-        const seekPos = (e.clientX - el.left) / el.width;
-        this.audio.currentTime = parseInt(this.audio.duration * seekPos);
       },
       stop() {
         this.playing = false;
