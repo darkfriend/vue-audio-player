@@ -49,7 +49,6 @@
     },
     mounted() {
       this.audio = this.$el.querySelectorAll('audio')[0];
-      this.audio.addEventListener('timeupdate', this.update);
       this.audio.addEventListener('loadeddata', this.load);
       this.audio.addEventListener('pause', () => {
         if (this.playing)
@@ -81,7 +80,6 @@
       load() {
         if (this.audio.readyState >= 2) {
           this.loaded = true;
-          this.durationSeconds = parseInt(this.audio.duration);
           return this.playing = this.autoPlay;
         }
         throw new Error('Failed to load sound file.');
@@ -90,9 +88,6 @@
         this.playing = false;
         this.audio.currentTime = 0;
       },
-      update(e) {
-        this.currentSeconds = parseInt(this.audio.currentTime);
-      }
     },
   }
 </script>
